@@ -7,13 +7,8 @@ MyMQTT::MyMQTT() : client(espClient) {}
 
 void MyMQTT::setup()
 {
-    WiFi.begin(ssid, password);
-    while (WiFi.status() != WL_CONNECTED)
-    {
-        delay(500);
-        Serial.print(".");
-    }
-    Serial.println("\nWiFi connected");
+    connectToWiFi();
+
     Serial.print("ESP32 IP address: ");
     Serial.println(WiFi.localIP()); // Print the local IP address
     client.setServer(mqtt_server, 1883);
@@ -72,4 +67,35 @@ void MyMQTT::callback(char *topic, byte *payload, unsigned int length)
         Serial.print((char)payload[i]);
     }
     Serial.println();
+}
+
+void MyMQTT::connectToWiFi()
+{
+    if (!SPIFFS.begin(true))
+    {
+        Serial.println("An Error has occurred while mounting SPIFFS");
+        return;
+    }
+
+    File file = SPIFFS.open("/wifi_config.txt", FILE_READ);
+    if (!file)
+    {
+        Serial.println("Failed to open file for reading");
+        return;
+    }
+
+    String ssid = file.readStringUntil('\n');
+    String password = file.readStringUntil('\n');
+    file.close();
+
+    ssid.trim();
+    password.trim();
+
+    WiFi.begin(ssid.c_str(), password.c_str());
+    while (WiFi.status() != WL_CONNECTED)
+    {
+        delay(500);
+        Serial.print(".");
+    }
+    Serial.println("\nWiFi connected");
 }

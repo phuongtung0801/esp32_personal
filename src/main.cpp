@@ -3,8 +3,11 @@
 #include <freertos/task.h>
 #include <ArduinoJson.h>
 #include "MyMQTT.h"
+#include "AccessPoint.h"
 
 #define LED_PIN 2 // Define the LED
+
+AccessPoint accessPoint;
 
 // Task 1: Handle MQTT
 void Task1(void *pvParameters)
@@ -43,16 +46,32 @@ void Task2(void *pvParameters)
   }
 }
 
+// Task 3: Handle Access Point Client Requests
+void Task3(void *pvParameters)
+{
+  while (1)
+  {
+    accessPoint.handleClient();
+    vTaskDelay(10 / portTICK_PERIOD_MS); // Delay for 10 milliseconds to yield to other tasks
+  }
+}
+
 void setup()
 {
   // Start the Serial communication at a baud rate of 9600
   Serial.begin(9600);
+
+  // Thiết lập Access Point
+  accessPoint.setupAP();
 
   // Create Task 1
   xTaskCreate(Task1, "Task 1", 10000, NULL, 1, NULL);
 
   // Create Task 2
   xTaskCreate(Task2, "Task 2", 1000, NULL, 1, NULL);
+
+  // Create Task 3
+  xTaskCreate(Task3, "Task 3", 10000, NULL, 1, NULL);
 }
 
 void loop()

@@ -3,7 +3,7 @@
 
 #include <WiFi.h>
 #include <PubSubClient.h>
-#include "WiFiCredentials.h"
+#include <SPIFFS.h>
 #include "MQTTCredentials.h"
 
 class MyMQTT
@@ -16,8 +16,6 @@ public:
     void subscribe(const char *topic);
 
 private:
-    const char *ssid = WIFI_SSID;
-    const char *password = WIFI_PASSWORD;
     const char *mqtt_server = MQTT_SERVER;
     const char *mqtt_username = MQTT_USERNAME;
     const char *mqtt_password = MQTT_PASSWORD;
@@ -25,6 +23,7 @@ private:
     PubSubClient client;
     void reconnect();
     static void callback(char *topic, byte *payload, unsigned int length);
+    void connectToWiFi();
 };
 
 // Declare the global instance of MyMQTT
