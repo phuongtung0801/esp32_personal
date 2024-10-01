@@ -19,7 +19,7 @@ void Task1(void *pvParameters)
     mqttClient.loop();
 
     // Create a JSON document
-    StaticJsonDocument<200> doc;
+    DynamicJsonDocument doc(200);
     doc["test_key"] = "test_value";
 
     // Serialize JSON to string
